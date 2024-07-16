@@ -1,32 +1,39 @@
 'use client'
 
 import DialogConfirmDelete from "@/components/globals/DialogConfirmDelete";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { deleteCategory, fetchCategoryById } from "@/services/category.service";
 import { deletePost, fetchPostById } from "@/services/post.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 
-type PostDetailParams = {
+type DetailCategoryParams = {
     id: string;
 }
 
 const PostDetail = () => {
-    const { id } = useParams<PostDetailParams>();
+    const { id } = useParams<DetailCategoryParams>();
     const router = useRouter();
     const { toast } = useToast()
 
     const { isPending, error, data } = useQuery({
-        queryKey: ['repoData'],
-        queryFn: () => fetchPostById(id)
+        queryKey: ['category'],
+        queryFn: () => fetchCategoryById(id)
     })
 
     const mutation = useMutation({
-        mutationFn: deletePost,
+        mutationFn: deleteCategory,
         onSuccess: () => {
             toast({
-                title: 'Post supprimé',
-                description: 'Votre post a bien été supprimé'
+                title: 'Catégorie supprimée',
+                description: 'Votre catégorie a bien été supprimé'
+            })
+            router.push('/')
+        },
+        onError: () => {
+            toast({
+                title: 'Une erreur est survenu',
+                description: 'Votre catégorie n\'a pas pu être supprimé'
             })
             router.push('/')
         }
@@ -40,9 +47,7 @@ const PostDetail = () => {
     
     return ( 
         <div>
-            <h1>{data?.title}</h1>
-            <Badge>{data?.category.name}</Badge>
-            <p>{data?.description}</p>
+            <h1>{data?.name}</h1>
             <DialogConfirmDelete 
                 handleDelete={handleDelete} 
                 isPending={mutation.isPending}

@@ -1,13 +1,13 @@
-import { PostCreateDTO } from "@/types/post";
+import { Post, PostCreateDTO } from "@/types/post";
 import { POST_ENDPOINT } from "@/utils/constants";
 
-export const fetchAllPosts = async () => {
+export const fetchAllPosts = async (): Promise<Post[]> => {
     const response = await fetch(POST_ENDPOINT);
     const data = await response.json();
     return data;
 }
 
-export const fetchPostById = async (id: string) => {
+export const fetchPostById = async (id: string): Promise<Post> => {
     const response = await fetch(`${POST_ENDPOINT}/${id}`);
     const data = await response.json();
     return data;

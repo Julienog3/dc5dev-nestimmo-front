@@ -4,7 +4,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { createPost } from "@/services/post.service"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { fetchAllCategories } from "@/services/category.service"
+import { useState } from "react"
 
 type FormPostProps = {
     setOpen: (open: boolean) => void;
@@ -12,7 +15,10 @@ type FormPostProps = {
 
 const FormPost = ({ setOpen } : FormPostProps) => {
     const queryClient = useQueryClient();
-
+    const { isPending, error, data: categories } = useQuery({
+      queryKey: ['categories'],
+      queryFn: fetchAllCategories
+    })
     const mutation = useMutation({
         mutationFn: createPost,
         onSuccess: () => {
@@ -28,7 +34,8 @@ const FormPost = ({ setOpen } : FormPostProps) => {
 
         const createPostDTO = {
             title: e.target.title.value,
-            description: e.target.description.value
+            description: e.target.description.value,
+            category: +e.target.category.value,
         }
 
         mutation.mutate(createPostDTO);
@@ -43,6 +50,18 @@ const FormPost = ({ setOpen } : FormPostProps) => {
                     name="title"
                 />
             </div>
+            {categories && <div className="mb-2">
+                <Select id="category" name="category">
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Theme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {categories.map((category) => {
+                            return <SelectItem key={category.id} value={category.id.toString()} >{category.name}</SelectItem>
+                        })}
+                    </SelectContent>
+                </Select>
+            </div>}
             <div className="mb-2">
                 <Textarea 
                     placeholder="Post description"
@@ -52,7 +71,7 @@ const FormPost = ({ setOpen } : FormPostProps) => {
             <div>
                 <Button type="submit" className="w-full" disabled={mutation.isPending}>
                     {mutation.isPending && <span className="mr-4 h-4 w-4 rounded-full bg-white animate-pulse"></span>}
-                    Create post
+                    Créer le post
                 </Button>
             </div>
         </form>
